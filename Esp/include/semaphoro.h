@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 
-#define DUTY_CICLE 5 // ON  = DUTY_CICLE && 
+#define DUTY_CICLE 9 // ON  = DUTY_CICLE && 
                      // OFF = (10 - DUTY_CICLE)
 
 #define SEMAPHORE_STATE     12 
@@ -21,17 +21,20 @@ struct SemaphoroPins {
 const int timer_state[SEMAPHORE_STATE][SEMAPHORE_IN_COUNT][SEMAPHORE_OUT_COUNT] = 
 {
     { {0,0,1}, {0,0,1}, {1,0,0}, {1,0,0}, {1,0,0}}, //1° Tempo 
-    { {0,0,1}, {0,0,1}, {0,1,0}, {0,1,0}, {0,1,0}}, //Reduz velovidade
-    { {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}}, //Fechar sinaleira
+    { {0,1,0}, {0,1,0}, {1,0,0}, {1,0,0}, {1,0,0}}, //Reduz velovidade
+    { {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}}, //Fechar sinaleira
+
     { {1,0,0}, {0,0,1}, {0,0,1}, {1,0,0}, {0,0,1}}, //2° Tempo 
-    { {0,1,0}, {0,0,1}, {0,0,1}, {0,1,0}, {0,0,1}}, //Reduz velovidade
-    { {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}}, //Fechar sinaleira
+    { {1,0,0}, {0,1,0}, {0,1,0}, {1,0,0}, {0,1,0}}, //Reduz velovidade
+    { {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}}, //Fechar sinaleira
+
     { {1,0,0}, {1,0,0}, {1,0,0}, {0,0,1}, {0,0,1}}, //3° Tempo 
-    { {0,1,0}, {0,1,0}, {0,1,0}, {0,0,1}, {0,0,1}}, //Reduz velovidade
-    { {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}}, //Fechar sinaleira
+    { {1,0,0}, {1,0,0}, {1,0,0}, {0,1,0}, {0,1,0}}, //Reduz velovidade
+    { {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}, {1,0,0}}, //Fechar sinaleira
+
     { {1,0,0}, {0,0,1}, {1,0,0}, {1,0,0}, {1,0,0}}, //4° Tempo 
-    { {0,1,0}, {0,0,1}, {0,1,0}, {0,1,0}, {0,1,0}}, //Reduz velovidade
-    { {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}, {0,0,1}}  //Fechar sinaleira
+    { {1,0,0}, {0,0,1}, {1,0,0}, {1,0,0}, {0,1,0}}, //Reduz velovidade
+    { {1,0,0}, {0,0,1}, {1,0,0}, {1,0,0}, {0,0,1}}  //Fechar sinaleira
 };
 
 // Funções de controle

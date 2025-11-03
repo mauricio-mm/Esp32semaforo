@@ -2,8 +2,8 @@
 
 void semaphoro_on(SemaphoroPins *semaphoro, int num, int color)
 {
-    digitalWrite(semaphoro->in[num],    LOW);
-    digitalWrite(semaphoro->out[color], HIGH);
+    digitalWrite(semaphoro->in[num],    HIGH);
+    digitalWrite(semaphoro->out[color], LOW);
 }
 
 //coloca IN como HIGH ficar no mesmo nivel de tensao que o OUT
@@ -11,10 +11,10 @@ void semaphoro_on(SemaphoroPins *semaphoro, int num, int color)
 void semaphoro_off(SemaphoroPins *semaphoro)
 {
     for(int i = 0; i < SEMAPHORE_IN_COUNT; i++)
-        digitalWrite(semaphoro->in[i], HIGH);
+        digitalWrite(semaphoro->in[i], LOW);
 
     for(int i = 0; i < SEMAPHORE_OUT_COUNT; i++)
-        digitalWrite(semaphoro->out[i], LOW);
+        digitalWrite(semaphoro->out[i], HIGH);
         
 }
 
