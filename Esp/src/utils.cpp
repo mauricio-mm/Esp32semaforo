@@ -4,7 +4,7 @@
 
 void config(SemaphoroPins *semaphoro)
 {
-  int out[3] = {21, 22, 23};
+  int out[3] = {19, 21, 22};
   int in [5] = {4, 16, 17, 5, 18};
 
   Serial.begin(9600);

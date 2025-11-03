@@ -51,10 +51,11 @@ void loop()
   {
     int index = verify_state(timer_state[state][in]);
 
-    semaphoro_off(&semaphoro);
-    delay(10 - DUTY_CICLE);
+    semaphoro_off(&semaphoro);    
+    // millis(10);
+    // delay(10 - DUTY_CICLE);
     semaphoro_on(&semaphoro, in, index);
-    delay(DUTY_CICLE);
+    delay(1);
 
     in = (in + 1) % SEMAPHORE_IN_COUNT;
     counter++;

@@ -6,56 +6,73 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>457</height>
+    <width>300</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Sinaleira</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>320</y>
-      <width>81</width>
-      <height>81</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">
-   QPushButton {
-       background-color: #B22222;
-       border: none;
-       border-radius: 40px;
-       color: white;
-       font-size: 28px;
-       font-weight: bold;
-       padding: 10px;
-   }
-   QPushButton:hover {
-       background-color: #cc3333;
-   }
-   QPushButton:pressed {
-       background-color: #800000;
-   }
-  </string>
-    </property>
-    <property name="text">
-     <string>⏻</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>562</width>
-     <height>21</height>
-    </rect>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
+    <item>
+     <widget class="QLabel" name="lblVermelho">
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: gray; border-radius: 50px; border: 2px solid black;</string>
+      </property>
+      <property name="text">
+       <string>Tag: TAG_VERMELHO</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="lblAmarelo">
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: gray; border-radius: 50px; border: 2px solid black;</string>
+      </property>
+      <property name="text">
+       <string>Tag: TAG_AMARELO</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="lblVerde">
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: gray; border-radius: 50px; border: 2px solid black;</string>
+      </property>
+      <property name="text">
+       <string>Tag: TAG_VERDE</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

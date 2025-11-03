@@ -5,7 +5,7 @@
 
 #include <Arduino.h>
 
-#define DUTY_CICLE 5 // ON  = DUTY_CICLE && 
+#define DUTY_CICLE 9 // ON  = DUTY_CICLE && 
                      // OFF = (10 - DUTY_CICLE)
 
 #define SEMAPHORE_STATE     12 
