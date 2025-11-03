@@ -1,49 +1,54 @@
-
 #include "utils.h"
 
-const char* ssid = "POCOX6Pro";    
-const char* password = "esppucrs";
+//  OUT --|>|-- IN
 
-void WIFIConnect(WiFiClient *espClient)
+void config(SemaphoroPins *semaphoro)
 {
-  Serial.println("Conectando a rede wifi!");
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) 
+  int out[3] = {21, 22, 23};
+  int in [5] = {4, 16, 17, 5, 18};
+
+  Serial.begin(9600);
+
+  for (int i = 0; i < SEMAPHORE_OUT_COUNT; i++)
   {
-    delay(500);
-    Serial.println("Conectando a rede wifi....");
+    pinMode(out[i], OUTPUT);
+    semaphoro->out[i] = out[i];
+    digitalWrite(semaphoro->out[i], LOW);
   }
-  Serial.println("Conectado a rede wifi");
+
+  for (int i = 0; i < SEMAPHORE_IN_COUNT; i++)
+  {
+    pinMode(in[i], OUTPUT);
+    semaphoro->in[i] = in[i];
+    digitalWrite(semaphoro->in[i], LOW);
+  }
+
+  pinMode(SEMAPHORE_BUTTON, INPUT);
 }
 
-void MQTTConnect(PubSubClient *MQTT)
+int verify_state(const int *arr) 
 {
-  while(!MQTT->connected()) 
-  {
-    if (MQTT->connect(ID_MQTT))
-    {
-      Serial.println("Conectado ao Broker!");
-      MQTT->subscribe(topic_client);      
-    } 
-    else 
-    {
-      Serial.print("Falha na conexão. O status é: ");
-      Serial.print(MQTT->state());      
+    return arr[0]*0 + arr[1]*1 + arr[2]*2;
+}
+
+String timerStateToString(int state)
+{
+    String result = "{ "; 
+
+    for (int i = 0; i < SEMAPHORE_IN_COUNT; i++) {
+        result += "{";
+        for (int j = 0; j < SEMAPHORE_OUT_COUNT; j++) {
+            result += String(timer_state[state][i][j]);
+            if (j < SEMAPHORE_OUT_COUNT - 1)
+                result += ",";
+        }
+        result += "}";
+        if (i < SEMAPHORE_IN_COUNT - 1)
+            result += ",";
+        result += " ";
     }
-  }
-}
 
-void publish_data(PubSubClient *MQTT,const char *topic, String data)
-{
-  MQTT->publish(topic, data.c_str());
-}
+    result += "}";
 
-void callback(char *topic, byte *payload, unsigned int length) 
-{
-  if(String(topic) == "lab318/client") 
-  {      
-      int estado = (payload[0] == '1') ? HIGH : LOW;
-      //digitalWrite(LEDPIN, estado);    
-  }
-  
+    return result;
 }
