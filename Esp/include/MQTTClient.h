@@ -8,6 +8,7 @@
 
 #define ID_MQTT "esp_iot"
 #define topic_semaphoro "lab318/semaphoro"
+#define topic_semaphoro_cb "lab318/semaphoro_cb"
 
 void MQTTConnect(PubSubClient *MQTT);
 void publish_data(PubSubClient *MQTT, const char *topic, String data);

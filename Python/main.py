@@ -8,6 +8,7 @@ broker = "broker.emqx.io"
 port = 1883
 client_id = "py_iot"
 topic = "lab318/semaphoro"
+topic_btn = "lab318/semaphoro_cb"
 
 # ---------------------- SEMÁFORO ----------------------
 class SemaforoWidget(QtWidgets.QWidget):
@@ -15,12 +16,11 @@ class SemaforoWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.setFixedSize(120, 300)
         self.luzes = ["red", "yellow", "green"]
-        self.aceso = "red"
+        self.aceso = None   # Nenhuma luz acesa (apagado)
 
     def setLuz(self, cor):
-        if cor in self.luzes:
-            self.aceso = cor
-            self.update()
+        self.aceso = cor
+        self.update()
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
@@ -30,21 +30,25 @@ class SemaforoWidget(QtWidgets.QWidget):
         painter.setBrush(QtGui.QBrush(QtGui.QColor("black")))
         painter.drawRoundedRect(rect, 10, 10)
 
-        cores = {"red": QtGui.QColor(255,0,0),
-                 "yellow": QtGui.QColor(255,255,0),
-                 "green": QtGui.QColor(0,255,0)}
-        
+        cores = {
+            "red": QtGui.QColor(255,0,0),
+            "yellow": QtGui.QColor(255,255,0),
+            "green": QtGui.QColor(0,255,0)
+        }
+
         for i, cor in enumerate(self.luzes):
-            y = 40 + i*80
+            y = 40 + i * 80
+
             if self.aceso == cor:
                 painter.setBrush(QtGui.QBrush(cores[cor]))
             else:
-                painter.setBrush(QtGui.QBrush(QtGui.QColor(80,80,80)))
+                painter.setBrush(QtGui.QBrush(QtGui.QColor(80,80,80)))  # apagado
+
             painter.drawEllipse(30, y, 60, 60)
 
 # ---------------------- CLIENTE MQTT ----------------------
 class MQTTClient(QtCore.QObject):
-    nova_mensagem = QtCore.pyqtSignal(str)  # sinal para a GUI
+    nova_mensagem = QtCore.pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -62,33 +66,46 @@ class MQTTClient(QtCore.QObject):
         if rc == 0:
             print("Conectado ao broker MQTT!")
             client.subscribe(topic)
+            client.subscribe(topic_btn)
         else:
             print("Falha na conexão, código:", rc)
 
     def on_message(self, client, userdata, msg):
         mensagem = msg.payload.decode()
-        print("Mensagem recebida:", mensagem)
-        self.nova_mensagem.emit(mensagem)
+        topico = msg.topic
 
-# ---------------------- FUNÇÃO DE ATUALIZAÇÃO ----------------------
+        print("Mensagem recebida:", mensagem, "| Tópico:", topico)
+
+        if topico == topic_btn:
+            print("Botão recebido:", mensagem)
+            return
+        
+        if topico == topic:
+            self.nova_mensagem.emit(mensagem)
+
+# ---------------------- ATUALIZAÇÃO DAS SINALEIRAS ----------------------
 def atualizar_semaforo(msg):
-    """
-    Recebe uma mensagem no formato:
-    { {1,0,0}, {0,0,1}, {1,0,0}, {1,0,0}, {1,0,0} }
-    e atualiza os 5 semáforos
-    """
-    # Substitui {} por [] para virar lista Python
+
     msg = msg.replace("{", "[").replace("}", "]")
+
     try:
-        estados = eval(msg)  # cuidado: só se confiar no broker!
+        estados = eval(msg)
         cores = ["red", "yellow", "green"]
 
         for i, estado in enumerate(estados):
             if i >= len(sinaleiras):
                 continue
+
+            # Apagado: [0,0,0]
+            if estado == [0,0,0]:
+                sinaleiras[i].setLuz(None)
+                continue
+
+            # Somente um LED pode estar ligado
             if sum(estado) != 1:
                 print(f"Estado inválido para S{i+1}: {estado}")
                 continue
+
             cor = cores[estado.index(1)]
             sinaleiras[i].setLuz(cor)
 
@@ -96,13 +113,12 @@ def atualizar_semaforo(msg):
         print("Erro ao processar mensagem:", msg)
         print(e)
 
-# ---------------------- INICIALIZAÇÃO GUI ----------------------
+# ---------------------- GUI ----------------------
 app = QtWidgets.QApplication(sys.argv)
 janela = QtWidgets.QMainWindow()
 janela.setWindowTitle("Semáforos MQTT")
-janela.setGeometry(200, 200, 900, 400)
+janela.setGeometry(200, 200, 900, 450)
 
-# Central widget e layout principal
 central = QtWidgets.QWidget()
 janela.setCentralWidget(central)
 layout_principal = QtWidgets.QVBoxLayout(central)
@@ -110,7 +126,7 @@ layout_principal = QtWidgets.QVBoxLayout(central)
 h_layout = QtWidgets.QHBoxLayout()
 layout_principal.addLayout(h_layout)
 
-# Cria 5 semáforos
+# 5 semáforos
 nomes = ["S1", "S2", "S3", "S4", "S5"]
 sinaleiras = []
 
@@ -123,13 +139,29 @@ for nome in nomes:
 
     label = QtWidgets.QLabel(nome)
     label.setAlignment(QtCore.Qt.AlignCenter)
-    label.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
     v_layout.addWidget(semaforo)
     v_layout.addWidget(label)
     h_layout.addLayout(v_layout)
 
-# ---------------------- INICIALIZAÇÃO MQTT ----------------------
+# ---------------------- BOTÃO ----------------------
+estado_botao = 0
+
+botao = QtWidgets.QPushButton("Manutenção: 0")
+botao.setFixedHeight(60)
+botao.setStyleSheet("font-size: 20px;")
+layout_principal.addWidget(botao)
+
+def clicar_botao():
+    global estado_botao
+    estado_botao = 1 - estado_botao
+    botao.setText(f"Manutenção: {estado_botao}")
+    mqtt_client.client.publish(topic_btn, str(estado_botao))
+    print("Publicado:", estado_botao)
+
+botao.clicked.connect(clicar_botao)
+
+# ---------------------- MQTT ----------------------
 mqtt_client = MQTTClient()
 mqtt_client.nova_mensagem.connect(atualizar_semaforo)
 mqtt_client.start()

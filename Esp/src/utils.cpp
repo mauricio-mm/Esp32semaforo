@@ -22,8 +22,6 @@ void config(SemaphoroPins *semaphoro)
     semaphoro->in[i] = in[i];
     digitalWrite(semaphoro->in[i], LOW);
   }
-
-  pinMode(SEMAPHORE_BUTTON, INPUT);
 }
 
 int verify_state(const int *arr) 
